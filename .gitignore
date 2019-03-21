@@ -1,0 +1,12 @@
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+*.xml
+sketch.js
+sketch_my.js
+sketch_working.js
+Years.mbtiles

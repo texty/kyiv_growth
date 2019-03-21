@@ -1,0 +1,129 @@
+new p5();
+
+let canvas;
+let myMap;
+let allCoordinates = [];
+let buildings = [];
+let building_by_year = {};
+
+
+var data;
+var myalpha = 0;
+//var redraw;
+
+const options = {
+  lat: 50.45466,
+  lng: 30.5238,
+  zoom: 13,
+  style: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+}
+
+const mappa = new Mappa('Leaflet');
+
+
+function preload(){
+  data = loadJSON('./data/housesKiev.geojson');
+}
+
+
+function  setup(){
+  frameRate(3000);
+  canvas = createCanvas(1200,900);
+  myMap = mappa.tileMap(options);
+  myMap.overlay(canvas);
+  
+ // houseCoordinates = myMap.geoJSON(data, "Polygon");
+
+
+  //console.log(data.features) 
+
+  // houseCoordinates.forEach(function(house){
+  //   house.forEach(function(coordinate){
+     
+  //        allCoordinates.push(coordinate)
+           
+  //   })
+  // })
+
+
+  for (var i = 0; i< data.features.length; i++){
+    var year = data.features[i].properties.built_year;
+    var coordinates = data.features[i].geometry.coordinates[0]
+    buildings.push({built_year: year, polygon: coordinates});
+    //console.log(year)
+
+  }
+
+
+  for(let i = 0; i < buildings.length; i++){
+        
+        var building = buildings[i];
+        var year = building.built_year;
+
+        var one_year_buildings = building_by_year[year];
+        if( typeof one_year_buildings === 'undefined' ){
+          building_by_year[year] = [building]
+        } else {
+          one_year_buildings.push(building)
+        }
+
+
+  } 
+
+    //console.log(building_by_year)
+    //console.log(buildings)
+    //noLoop();
+    //myredraw = function(){redraw() };
+
+
+  }
+
+
+ 
+
+function draw(){
+
+  clear();
+  noStroke();
+  // from = color(255,255,255,0);
+  // to = color(255,255,255,255);
+  // fillcolor = lerpColor(from, to, 0.33);
+ 
+ 
+  fill(255,255,255,myalpha++);
+  if (millis() > 30000){
+    noLoop();
+  }
+
+  //var year = 2000;
+ for(var year=1917; year < 1941; year++ ){
+      var one_year_buildings = building_by_year[year];
+  //console.log(one_year_buildings)    
+      if(  !( typeof one_year_buildings === 'undefined'  )  ){
+          for(let i = 0; i < one_year_buildings.length; i++){
+                var houseShape = one_year_buildings[i].polygon;
+            
+                //console.log(houseShape)
+                beginShape();
+                for (let k = 0; k < houseShape.length; k++){
+                  if(  !isNaN(houseShape[k][1]) &&  !isNaN(houseShape[k][0]) ){
+                    let pos = myMap.latLngToPixel(houseShape[k][1], houseShape[k][0])
+                    vertex(pos.x, pos.y);
+                  } 
+                } 
+                endShape(CLOSE);
+               
+           }
+        }   
+    }
+
+
+     
+
+}
+
+ // for(var k=0; k <= 255; k++){
+ //  myalpha = k;
+ //  redraw();
+  //console.log(alpha);
+// }
